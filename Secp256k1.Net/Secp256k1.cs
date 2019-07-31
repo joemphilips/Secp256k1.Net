@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -103,15 +104,15 @@ namespace Secp256k1Net
         /// </returns>
         public bool Recover(Span<byte> publicKeyOutput, Span<byte> signature, Span<byte> message)
         {
-            if (publicKeyOutput.Length < PUBKEY_LENGTH)
+            if (publicKeyOutput.Length != PUBKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(publicKeyOutput)} must be {PUBKEY_LENGTH} bytes");
             }
-            if (signature.Length < UNSERIALIZED_SIGNATURE_SIZE)
+            if (signature.Length != UNSERIALIZED_SIGNATURE_SIZE)
             {
                 throw new ArgumentException($"{nameof(signature)} must be {UNSERIALIZED_SIGNATURE_SIZE} bytes");
             }
-            if (message.Length < 32)
+            if (message.Length != 32)
             {
                 throw new ArgumentException($"{nameof(message)} must be 32 bytes");
             }
@@ -131,7 +132,7 @@ namespace Secp256k1Net
         /// <returns>True if secret key is valid, false if secret key is invalid.</returns>
         public bool SecretKeyVerify(Span<byte> secretKey)
         {
-            if (secretKey.Length < PRIVKEY_LENGTH)
+            if (secretKey.Length != PRIVKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(secretKey)} must be {PRIVKEY_LENGTH} bytes");
             }
@@ -152,11 +153,11 @@ namespace Secp256k1Net
         /// </returns>
         public bool PublicKeyCreate(Span<byte> publicKeyOutput, Span<byte> privateKeyInput)
         {
-            if (publicKeyOutput.Length < PUBKEY_LENGTH)
+            if (publicKeyOutput.Length != PUBKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(publicKeyOutput)} must be {PUBKEY_LENGTH} bytes");
             }
-            if (privateKeyInput.Length < PRIVKEY_LENGTH)
+            if (privateKeyInput.Length != PRIVKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(privateKeyInput)} must be {PRIVKEY_LENGTH} bytes");
             }
@@ -177,11 +178,11 @@ namespace Secp256k1Net
         /// <returns>True when the signature could be parsed.</returns>
         public bool RecoverableSignatureParseCompact(Span<byte> signatureOutput, Span<byte> compactSignature, int recoveryID)
         {
-            if (signatureOutput.Length < UNSERIALIZED_SIGNATURE_SIZE)
+            if (signatureOutput.Length != UNSERIALIZED_SIGNATURE_SIZE)
             {
                 throw new ArgumentException($"{nameof(signatureOutput)} must be 64 bytes");
             }
-            if (compactSignature.Length < SERIALIZED_SIGNATURE_SIZE)
+            if (compactSignature.Length != SERIALIZED_SIGNATURE_SIZE)
             {
                 throw new ArgumentException($"{nameof(compactSignature)} must be 64 bytes");
             }
@@ -204,15 +205,15 @@ namespace Secp256k1Net
         /// </returns>
         public bool SignRecoverable(Span<byte> signatureOutput, Span<byte> messageHash, Span<byte> secretKey)
         {
-            if (signatureOutput.Length < UNSERIALIZED_SIGNATURE_SIZE)
+            if (signatureOutput.Length != UNSERIALIZED_SIGNATURE_SIZE)
             {
                 throw new ArgumentException($"{nameof(signatureOutput)} must be 65 bytes");
             }
-            if (messageHash.Length < 32)
+            if (messageHash.Length != 32)
             {
                 throw new ArgumentException($"{nameof(messageHash)} must be 32 bytes");
             }
-            if (secretKey.Length < PRIVKEY_LENGTH)
+            if (secretKey.Length != PRIVKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(secretKey)} must be 32 bytes");
             }
@@ -235,11 +236,11 @@ namespace Secp256k1Net
         /// <param name="signature">The initialized signature.</param>
         public bool RecoverableSignatureSerializeCompact(Span<byte> compactSignatureOutput, out int recoveryID, Span<byte> signature)
         {
-            if (compactSignatureOutput.Length < SERIALIZED_SIGNATURE_SIZE)
+            if (compactSignatureOutput.Length != SERIALIZED_SIGNATURE_SIZE)
             {
                 throw new ArgumentException($"{nameof(compactSignatureOutput)} must be {SERIALIZED_SIGNATURE_SIZE} bytes");
             }
-            if (signature.Length < UNSERIALIZED_SIGNATURE_SIZE)
+            if (signature.Length != UNSERIALIZED_SIGNATURE_SIZE)
             {
                 throw new ArgumentException($"{nameof(signature)} must be {UNSERIALIZED_SIGNATURE_SIZE} bytes");
             }
@@ -265,12 +266,12 @@ namespace Secp256k1Net
         {
             bool compressed = flags.HasFlag(Flags.SECP256K1_EC_COMPRESSED);
             int serializedPubKeyLength = compressed ? SERIALIZED_COMPRESSED_PUBKEY_LENGTH : SERIALIZED_UNCOMPRESSED_PUBKEY_LENGTH;
-            if (serializedPublicKeyOutput.Length < serializedPubKeyLength)
+            if (serializedPublicKeyOutput.Length != serializedPubKeyLength)
             {
                 string compressedStr = compressed ? "compressed" : "uncompressed";
                 throw new ArgumentException($"{nameof(serializedPublicKeyOutput)} ({compressedStr}) must be {serializedPubKeyLength} bytes");
             }
-            if (publicKey.Length < PUBKEY_LENGTH)
+            if (publicKey.Length != PUBKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(publicKey)} must be {PUBKEY_LENGTH} bytes");
             }
@@ -321,11 +322,11 @@ namespace Secp256k1Net
         /// <returns>True if sigin was not normalized, false if it already was.</returns>
         public bool SignatureNormalize(Span<byte> normalizedSignatureOutput, Span<byte> signatureInput)
         {
-            if (normalizedSignatureOutput.Length < SIGNATURE_LENGTH)
+            if (normalizedSignatureOutput.Length != SIGNATURE_LENGTH)
             {
                 throw new ArgumentException($"{nameof(normalizedSignatureOutput)} must be {SIGNATURE_LENGTH} bytes");
             }
-            if (signatureInput.Length < SIGNATURE_LENGTH)
+            if (signatureInput.Length != SIGNATURE_LENGTH)
             {
                 throw new ArgumentException($"{nameof(signatureInput)} must be {SIGNATURE_LENGTH} bytes");
             }
@@ -350,7 +351,7 @@ namespace Secp256k1Net
         /// <returns>True when the signature could be parsed, false otherwise.</returns>
         public bool SignatureParseDer(Span<byte> signatureOutput, Span<byte> signatureInput)
         {
-            if (signatureOutput.Length < SIGNATURE_LENGTH)
+            if (signatureOutput.Length != SIGNATURE_LENGTH)
             {
                 throw new ArgumentException($"{nameof(signatureOutput)} must be {SIGNATURE_LENGTH} bytes");
             }
@@ -380,15 +381,15 @@ namespace Secp256k1Net
         /// <returns>True if correct signature, false if incorrect or unparseable signature.</returns>
         public bool Verify(Span<byte> signature, Span<byte> messageHash, Span<byte> publicKey)
         {
-            if (signature.Length < SIGNATURE_LENGTH)
+            if (signature.Length != SIGNATURE_LENGTH)
             {
                 throw new ArgumentException($"{nameof(signature)} must be {SIGNATURE_LENGTH} bytes");
             }
-            if (messageHash.Length < HASH_LENGTH)
+            if (messageHash.Length != HASH_LENGTH)
             {
                 throw new ArgumentException($"{nameof(messageHash)} must be {HASH_LENGTH} bytes");
             }
-            if (publicKey.Length < PUBKEY_LENGTH)
+            if (publicKey.Length != PUBKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(publicKey)} must be {PUBKEY_LENGTH} bytes");
             }
@@ -412,15 +413,15 @@ namespace Secp256k1Net
         /// <returns></returns>
         public bool Sign(Span<byte> signatureOutput, Span<byte> messageHash, Span<byte> secretKey)
         {
-            if (signatureOutput.Length < SIGNATURE_LENGTH)
+            if (signatureOutput.Length != SIGNATURE_LENGTH)
             {
                 throw new ArgumentException($"{nameof(signatureOutput)} must be {SIGNATURE_LENGTH} bytes");
             }
-            if (messageHash.Length < HASH_LENGTH)
+            if (messageHash.Length != HASH_LENGTH)
             {
                 throw new ArgumentException($"{nameof(messageHash)} must be {HASH_LENGTH} bytes");
             }
-            if (secretKey.Length < PRIVKEY_LENGTH)
+            if (secretKey.Length != PRIVKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(secretKey)} must be {PRIVKEY_LENGTH} bytes");
             }
@@ -442,15 +443,15 @@ namespace Secp256k1Net
         /// <returns>True if exponentiation was successful, false if scalar was invalid (zero or overflow).</returns>
         public bool Ecdh(Span<byte> resultOutput, Span<byte> publicKey, Span<byte> privateKey)
         {
-            if (resultOutput.Length < SECRET_LENGTH)
+            if (resultOutput.Length != SECRET_LENGTH)
             {
                 throw new ArgumentException($"{nameof(resultOutput)} must be {SECRET_LENGTH} bytes");
             }
-            if (publicKey.Length < PUBKEY_LENGTH)
+            if (publicKey.Length != PUBKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(publicKey)} must be {PUBKEY_LENGTH} bytes");
             }
-            if (privateKey.Length < PRIVKEY_LENGTH)
+            if (privateKey.Length != PRIVKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(privateKey)} must be {PRIVKEY_LENGTH} bytes");
             }
@@ -477,15 +478,15 @@ namespace Secp256k1Net
         /// <returns>True if exponentiation was successful, false if scalar was invalid (zero or overflow).</returns>
         public bool Ecdh(Span<byte> resultOutput, Span<byte> publicKey, Span<byte> privateKey, EcdhHashFunction hashFunction, IntPtr data)
         {
-            if (resultOutput.Length < SECRET_LENGTH)
+            if (resultOutput.Length != SECRET_LENGTH)
             {
                 throw new ArgumentException($"{nameof(resultOutput)} must be {SECRET_LENGTH} bytes");
             }
-            if (publicKey.Length < PUBKEY_LENGTH)
+            if (publicKey.Length != PUBKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(publicKey)} must be {PUBKEY_LENGTH} bytes");
             }
-            if (privateKey.Length < PRIVKEY_LENGTH)
+            if (privateKey.Length != PRIVKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(privateKey)} must be {PRIVKEY_LENGTH} bytes");
             }
@@ -517,6 +518,58 @@ namespace Secp256k1Net
             }
         }
 
+        public bool PrivateKeyAdd(Span<byte> privateKey, Span<byte> tweak)
+        {
+            if (privateKey.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(privateKey)} must be {PRIVKEY_LENGTH}");
+            if (tweak.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
+
+            fixed (byte* privKeyP = privateKey)
+            fixed (byte* tweakP = tweak)
+            {
+                return secp256k1_ec_privkey_tweak_add.Value(_ctx, privKeyP, tweakP) == 1;
+            }
+        }
+
+        public bool PublicKeyAdd(Span<byte> pubKey, Span<byte> tweak)
+        {
+            if (pubKey.Length != PUBKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(pubKey)} must be {PUBKEY_LENGTH}");
+            if (tweak.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
+            fixed (byte* pubkeyP = pubKey)
+            fixed (byte* tweakP = tweak)
+            {
+                return secp256k1_ec_pubkey_tweak_add.Value(_ctx, pubkeyP, tweakP) == 1;
+            }
+        }
+
+        public bool PrivateKeyMulti(Span<byte> privKey, Span<byte> tweak)
+        {
+            if (privKey.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(privKey)} must be {PRIVKEY_LENGTH}");
+            if (tweak.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
+            fixed (byte* privKeyP = privKey)
+            fixed (byte* tweakP = tweak)
+            {
+                return secp256k1_ec_privkey_tweak_mul.Value(_ctx, privKeyP, tweakP) == 1;
+            }
+        }
+
+        public bool PublicKeyMulti(Span<byte> pubKey, Span<byte> tweak)
+        {
+            if (pubKey.Length != PUBKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(pubKey)} must be {PUBKEY_LENGTH}");
+            if (tweak.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
+            fixed (byte* pubkeyP = pubKey)
+            fixed (byte* tweakP = tweak)
+            {
+                return secp256k1_ec_pubkey_tweak_add.Value(_ctx, pubkeyP, tweakP) == 1;
+            }
+        }
 
         public void Dispose()
         {
