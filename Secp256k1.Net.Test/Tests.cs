@@ -30,8 +30,7 @@ namespace Secp256k1Net.Test
         KeyPair GenerateKeyPair(Secp256k1 secp256k1)
         {
             var privateKey = GeneratePrivateKey(secp256k1);
-            Span<byte> publicKey = new byte[64];
-            if (!secp256k1.PublicKeyCreate(publicKey, privateKey))
+            if (!secp256k1.PublicKeyCreate(privateKey, out var publicKey))
             {
                 throw new Exception("Public key creation failed");
             }
@@ -46,14 +45,11 @@ namespace Secp256k1Net.Test
                 var kp1 = GenerateKeyPair(secp256k1);
                 var kp2 = GenerateKeyPair(secp256k1);
 
-                Span<byte> sec1 = new byte[32];
-                Assert.True(secp256k1.Ecdh(sec1, kp1.PublicKey, kp2.PrivateKey));
+                Assert.True(secp256k1.Ecdh(kp1.PublicKey, kp2.PrivateKey, out var sec1));
 
-                Span<byte> sec2 = new byte[32];
-                Assert.True(secp256k1.Ecdh(sec2, kp2.PublicKey, kp1.PrivateKey));
+                Assert.True(secp256k1.Ecdh(kp2.PublicKey, kp1.PrivateKey, out var sec2));
 
-                Span<byte> sec3 = new byte[32];
-                Assert.True(secp256k1.Ecdh(sec3, kp1.PublicKey, kp1.PrivateKey));
+                Assert.True(secp256k1.Ecdh(kp1.PublicKey, kp1.PrivateKey, out var sec3));
 
                 Assert.Equal(sec1.ToHexString(), sec2.ToHexString());
                 Assert.NotEqual(sec3.ToHexString(), sec2.ToHexString());
@@ -78,14 +74,11 @@ namespace Secp256k1Net.Test
                     return 1;
                 };
 
-                Span<byte> sec1 = new byte[32];
-                Assert.True(secp256k1.Ecdh(sec1, kp1.PublicKey, kp2.PrivateKey, hashFunc, IntPtr.Zero));
+                Assert.True(secp256k1.Ecdh(kp1.PublicKey, kp2.PrivateKey, hashFunc, IntPtr.Zero, out var sec1));
 
-                Span<byte> sec2 = new byte[32];
-                Assert.True(secp256k1.Ecdh(sec2, kp2.PublicKey, kp1.PrivateKey, hashFunc, IntPtr.Zero));
+                Assert.True(secp256k1.Ecdh(kp2.PublicKey, kp1.PrivateKey, hashFunc, IntPtr.Zero, out var sec2));
 
-                Span<byte> sec3 = new byte[32];
-                Assert.True(secp256k1.Ecdh(sec3, kp1.PublicKey, kp1.PrivateKey, hashFunc, IntPtr.Zero));
+                Assert.True(secp256k1.Ecdh(kp1.PublicKey, kp1.PrivateKey, hashFunc, IntPtr.Zero, out var sec3));
 
                 Assert.Equal(sec1.ToHexString(), sec2.ToHexString());
                 Assert.NotEqual(sec3.ToHexString(), sec2.ToHexString());
@@ -109,8 +102,7 @@ namespace Secp256k1Net.Test
                 var kp = GenerateKeyPair(secp256k1);
                 Span<byte> msg = new byte[32];
                 RandomNumberGenerator.Create().GetBytes(msg);
-                Span<byte> signature = new byte[64];
-                Assert.True(secp256k1.Sign(signature, msg, kp.PrivateKey));
+                Assert.True(secp256k1.Sign(msg, kp.PrivateKey, out var signature));
                 Assert.True(secp256k1.Verify(signature, msg, kp.PublicKey));
             }
         }
@@ -123,10 +115,10 @@ namespace Secp256k1Net.Test
                 Span<byte> signatureOutput = new byte[Secp256k1.SIGNATURE_LENGTH];
 
                 Span<byte> validDerSignature = "30440220484ECE2B365D2B2C2EAD34B518328BBFEF0F4409349EEEC9CB19837B5795A5F5022040C4F6901FE489F923C49D4104554FD08595EAF864137F87DADDD0E3619B0605".HexToBytes();                
-                Assert.True(secp256k1.SignatureParseDer(signatureOutput, validDerSignature));
+                Assert.True(secp256k1.SignatureParseDer(validDerSignature, signatureOutput));
 
                 Span<byte> invalidDerSignature = "00".HexToBytes();
-                Assert.False(secp256k1.SignatureParseDer(signatureOutput, invalidDerSignature));
+                Assert.False(secp256k1.SignatureParseDer(invalidDerSignature, signatureOutput));
             }
         }
 
@@ -147,21 +139,19 @@ namespace Secp256k1Net.Test
             using (var secp256k1 = new Secp256k1())
             {
 
-                Span<byte> signature = new byte[Secp256k1.UNSERIALIZED_SIGNATURE_SIZE];
                 Span<byte> messageHash = new byte[] { 0xc9, 0xf1, 0xc7, 0x66, 0x85, 0x84, 0x5e, 0xa8, 0x1c, 0xac, 0x99, 0x25, 0xa7, 0x56, 0x58, 0x87, 0xb7, 0x77, 0x1b, 0x34, 0xb3, 0x5e, 0x64, 0x1c, 0xca, 0x85, 0xdb, 0x9f, 0xef, 0xd0, 0xe7, 0x1f };
                 Span<byte> secretKey = "e815acba8fcf085a0b4141060c13b8017a08da37f2eb1d6a5416adbb621560ef".HexToBytes();
 
-                bool result = secp256k1.SignRecoverable(signature, messageHash, secretKey);
+                bool result = secp256k1.SignRecoverable(messageHash, secretKey, out var signature);
                 Assert.True(result);
 
                 // Recover the public key
-                Span<byte> publicKeyOutput = new byte[Secp256k1.PUBKEY_LENGTH];
-                result = secp256k1.Recover(publicKeyOutput, signature, messageHash);
+                result = secp256k1.Recover(signature, messageHash, out var publicKeyOutput);
                 Assert.True(result);
 
                 // Serialize the public key
                 Span<byte> serializedKey = new byte[Secp256k1.SERIALIZED_UNCOMPRESSED_PUBKEY_LENGTH];
-                result = secp256k1.PublicKeySerialize(serializedKey, publicKeyOutput);
+                result = secp256k1.PublicKeySerialize(publicKeyOutput, serializedKey);
                 Assert.True(result);
 
                 // Slice off any prefix.
@@ -176,24 +166,21 @@ namespace Secp256k1Net.Test
 
                 byte[] ecdsa_r_bytes = BigIntegerConverter.GetBytes(ecdsa_r);
                 byte[] ecdsa_s_bytes = BigIntegerConverter.GetBytes(ecdsa_s);
-                signature = ecdsa_r_bytes.Concat(ecdsa_s_bytes).ToArray();
 
                 // Allocate memory for the signature and create a serialized-format signature to deserialize into our native format (platform dependent, hence why we do this).
                 Span<byte> serializedSignature = ecdsa_r_bytes.Concat(ecdsa_s_bytes).ToArray();
-                signature = new byte[Secp256k1.UNSERIALIZED_SIGNATURE_SIZE];
-                result = secp256k1.RecoverableSignatureParseCompact(signature, serializedSignature, recoveryId);
+                result = secp256k1.RecoverableSignatureParseCompact(serializedSignature, recoveryId, out var _);
                 if (!result)
                     throw new Exception("Unmanaged EC library failed to parse serialized signature.");
 
                 // Recover the public key
-                publicKeyOutput = new byte[Secp256k1.PUBKEY_LENGTH];
-                result = secp256k1.Recover(publicKeyOutput, signature, messageHash);
+                result = secp256k1.Recover(signature, messageHash, out publicKeyOutput);
                 Assert.True(result);
 
 
                 // Serialize the public key
                 serializedKey = new byte[Secp256k1.SERIALIZED_UNCOMPRESSED_PUBKEY_LENGTH];
-                result = secp256k1.PublicKeySerialize(serializedKey, publicKeyOutput);
+                result = secp256k1.PublicKeySerialize(publicKeyOutput, serializedKey);
                 Assert.True(result);
 
                 // Slice off any prefix.

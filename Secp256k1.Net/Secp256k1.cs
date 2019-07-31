@@ -102,7 +102,12 @@ namespace Secp256k1Net
         /// <returns>
         /// True if the public key successfully recovered (which guarantees a correct signature).
         /// </returns>
-        public bool Recover(Span<byte> publicKeyOutput, Span<byte> signature, Span<byte> message)
+        public bool Recover(ReadOnlySpan<byte> signature, ReadOnlySpan<byte> message, out Span<byte> publicKeyOutput)
+        {
+            publicKeyOutput = new byte[PUBKEY_LENGTH];
+            return Recover(signature, message, publicKeyOutput);
+        }
+        public bool Recover(ReadOnlySpan<byte> signature, ReadOnlySpan<byte> message, Span<byte> publicKeyOutput)
         {
             if (publicKeyOutput.Length != PUBKEY_LENGTH)
             {
@@ -130,7 +135,7 @@ namespace Secp256k1Net
         /// </summary>
         /// <param name="secretKey">32-byte secret key.</param>
         /// <returns>True if secret key is valid, false if secret key is invalid.</returns>
-        public bool SecretKeyVerify(Span<byte> secretKey)
+        public bool SecretKeyVerify(ReadOnlySpan<byte> secretKey)
         {
             if (secretKey.Length != PRIVKEY_LENGTH)
             {
@@ -151,7 +156,12 @@ namespace Secp256k1Net
         /// <returns>
         /// True if the private key is valid and public key was obtained.
         /// </returns>
-        public bool PublicKeyCreate(Span<byte> publicKeyOutput, Span<byte> privateKeyInput)
+        public bool PublicKeyCreate(ReadOnlySpan<byte> privateKeyInput, out Span<byte> publicKeyOutput)
+        {
+            publicKeyOutput = new byte[PUBKEY_LENGTH];
+            return PublicKeyCreate(privateKeyInput, publicKeyOutput);
+        }
+        public bool PublicKeyCreate(ReadOnlySpan<byte> privateKeyInput, Span<byte> publicKeyOutput)
         {
             if (publicKeyOutput.Length != PUBKEY_LENGTH)
             {
@@ -176,7 +186,13 @@ namespace Secp256k1Net
         /// <param name="compactSignature">The 64-byte compact signature input.</param>
         /// <param name="recoveryID">The recovery id (0, 1, 2 or 3).</param>
         /// <returns>True when the signature could be parsed.</returns>
-        public bool RecoverableSignatureParseCompact(Span<byte> signatureOutput, Span<byte> compactSignature, int recoveryID)
+        public bool RecoverableSignatureParseCompact(ReadOnlySpan<byte> compactSignature, int recoveryID, out Span<byte> signatureOutput)
+        {
+            signatureOutput = new byte[UNSERIALIZED_SIGNATURE_SIZE];
+            return RecoverableSignatureParseCompact(compactSignature, recoveryID, signatureOutput);
+        }
+
+        public bool RecoverableSignatureParseCompact( ReadOnlySpan<byte> compactSignature, int recoveryID, Span<byte> signatureOutput)
         {
             if (signatureOutput.Length != UNSERIALIZED_SIGNATURE_SIZE)
             {
@@ -203,7 +219,12 @@ namespace Secp256k1Net
         /// <returns>
         /// True if signature created, false if the nonce generation function failed, or the private key was invalid.
         /// </returns>
-        public bool SignRecoverable(Span<byte> signatureOutput, Span<byte> messageHash, Span<byte> secretKey)
+        public bool SignRecoverable(ReadOnlySpan<byte> messageHash, ReadOnlySpan<byte> secretKey, out Span<byte> signatureOutput)
+        {
+            signatureOutput = new byte[UNSERIALIZED_SIGNATURE_SIZE];
+            return SignRecoverable(messageHash, secretKey, signatureOutput);
+        }
+        public bool SignRecoverable(ReadOnlySpan<byte> messageHash, ReadOnlySpan<byte> secretKey, Span<byte> signatureOutput)
         {
             if (signatureOutput.Length != UNSERIALIZED_SIGNATURE_SIZE)
             {
@@ -234,7 +255,13 @@ namespace Secp256k1Net
         /// <param name="compactSignatureOutput">Output for the 64-byte array of the compact signature.</param>
         /// <param name="recoveryID">The recovery ID.</param>
         /// <param name="signature">The initialized signature.</param>
-        public bool RecoverableSignatureSerializeCompact(Span<byte> compactSignatureOutput, out int recoveryID, Span<byte> signature)
+        public bool RecoverableSignatureSerializeCompact(ReadOnlySpan<byte> signature, out Span<byte> compactSignatureOutput, out int recoveryID)
+        {
+            compactSignatureOutput = new byte[SERIALIZED_SIGNATURE_SIZE];
+            return RecoverableSignatureSerializeCompact(signature, compactSignatureOutput, out recoveryID);
+        }
+
+        public bool RecoverableSignatureSerializeCompact(ReadOnlySpan<byte> signature, Span<byte> compactSignatureOutput, out int recoveryID)
         {
             if (compactSignatureOutput.Length != SERIALIZED_SIGNATURE_SIZE)
             {
@@ -262,7 +289,14 @@ namespace Secp256k1Net
         /// <param name="serializedPublicKeyOutput">65-byte (if compressed==0) or 33-byte (if compressed==1) output to place the serialized key in.</param>
         /// <param name="publicKey">The secp256k1_pubkey initialized public key.</param>
         /// <param name="flags">SECP256K1_EC_COMPRESSED if serialization should be in compressed format, otherwise SECP256K1_EC_UNCOMPRESSED.</param>
-        public bool PublicKeySerialize(Span<byte> serializedPublicKeyOutput, Span<byte> publicKey, Flags flags = Flags.SECP256K1_EC_UNCOMPRESSED)
+        public bool PublicKeySerialize(ReadOnlySpan<byte> publicKey, Flags flags, out Span<byte> serializedPublicKeyOutput)
+        {
+            bool compressed = flags.HasFlag(Flags.SECP256K1_EC_COMPRESSED);
+            int serializedPubKeyLength = compressed ? SERIALIZED_COMPRESSED_PUBKEY_LENGTH : SERIALIZED_UNCOMPRESSED_PUBKEY_LENGTH;
+            serializedPublicKeyOutput = new byte[serializedPubKeyLength];
+            return PublicKeySerialize(publicKey, serializedPublicKeyOutput, flags);
+        }
+        public bool PublicKeySerialize(ReadOnlySpan<byte> publicKey, Span<byte> serializedPublicKeyOutput, Flags flags = Flags.SECP256K1_EC_UNCOMPRESSED)
         {
             bool compressed = flags.HasFlag(Flags.SECP256K1_EC_COMPRESSED);
             int serializedPubKeyLength = compressed ? SERIALIZED_COMPRESSED_PUBKEY_LENGTH : SERIALIZED_UNCOMPRESSED_PUBKEY_LENGTH;
@@ -295,14 +329,19 @@ namespace Secp256k1Net
         /// <param name="publicKeyOutput">(Output) pointer to a pubkey object. If 1 is returned, it is set to a parsed version of input. If not, its value is undefined.</param>
         /// <param name="serializedPublicKey">Serialized public key.</param>
         /// <returns>True if the public key was fully valid, false if the public key could not be parsed or is invalid.</returns>
-        public bool PublicKeyParse(Span<byte> publicKeyOutput, Span<byte> serializedPublicKey)
+        public bool PublicKeyParse(ReadOnlySpan<byte> serializedPublicKey, out Span<byte> publicKeyOutput)
+        {
+            publicKeyOutput = new byte[PUBKEY_LENGTH];
+            return PublicKeyParse(serializedPublicKey, publicKeyOutput);
+        }
+        public bool PublicKeyParse(ReadOnlySpan<byte> serializedPublicKey, Span<byte> publicKeyOutput)
         {
             var inputLen = serializedPublicKey.Length;
             if (inputLen != 33 && inputLen != 65)
             {
                 throw new ArgumentException($"{nameof(serializedPublicKey)} must be 33 or 65 bytes");
             }
-            if (publicKeyOutput.Length < PUBKEY_LENGTH)
+            if (publicKeyOutput.Length != PUBKEY_LENGTH)
             {
                 throw new ArgumentException($"{nameof(publicKeyOutput)} must be {PUBKEY_LENGTH} bytes");
             }
@@ -320,7 +359,12 @@ namespace Secp256k1Net
         /// <param name="normalizedSignatureOutput">(Output) Signature to fill with the normalized form, or copy if the input was already normalized.</param>
         /// <param name="signatureInput">(Input) signature to check/normalize, can be identical to sigout</param>
         /// <returns>True if sigin was not normalized, false if it already was.</returns>
-        public bool SignatureNormalize(Span<byte> normalizedSignatureOutput, Span<byte> signatureInput)
+        public bool SignatureNormalize(ReadOnlySpan<byte> signatureInput, out Span<byte> normalizedSignatureOutput)
+        {
+            normalizedSignatureOutput = new byte[SIGNATURE_LENGTH];
+            return SignatureNormalize(signatureInput, normalizedSignatureOutput);
+        }
+        public bool SignatureNormalize(ReadOnlySpan<byte> signatureInput, Span<byte> normalizedSignatureOutput)
         {
             if (normalizedSignatureOutput.Length != SIGNATURE_LENGTH)
             {
@@ -349,7 +393,12 @@ namespace Secp256k1Net
         /// <param name="signatureOutput">(Output) a signature object</param>
         /// <param name="signatureInput">(Input) a signature to be parsed</param>
         /// <returns>True when the signature could be parsed, false otherwise.</returns>
-        public bool SignatureParseDer(Span<byte> signatureOutput, Span<byte> signatureInput)
+        public bool SignatureParseDer(ReadOnlySpan<byte> signatureInput, out Span<byte> signatureOutput)
+        {
+            signatureOutput = new byte[SIGNATURE_LENGTH];
+            return SignatureParseDer(signatureInput, signatureOutput);
+        }
+        public bool SignatureParseDer(ReadOnlySpan<byte> signatureInput, Span<byte> signatureOutput)
         {
             if (signatureOutput.Length != SIGNATURE_LENGTH)
             {
@@ -379,7 +428,7 @@ namespace Secp256k1Net
         /// <param name="messageHash">The 32-byte message hash being verified.</param>
         /// <param name="publicKey">An initialized public key to verify with.</param>
         /// <returns>True if correct signature, false if incorrect or unparseable signature.</returns>
-        public bool Verify(Span<byte> signature, Span<byte> messageHash, Span<byte> publicKey)
+        public bool Verify(ReadOnlySpan<byte> signature, ReadOnlySpan<byte> messageHash, ReadOnlySpan<byte> publicKey)
         {
             if (signature.Length != SIGNATURE_LENGTH)
             {
@@ -411,7 +460,12 @@ namespace Secp256k1Net
         /// <param name="messageHash">The 32-byte message hash being signed.</param>
         /// <param name="secretKey">A 32-byte secret key.</param>
         /// <returns></returns>
-        public bool Sign(Span<byte> signatureOutput, Span<byte> messageHash, Span<byte> secretKey)
+        public bool Sign(ReadOnlySpan<byte> messageHash, ReadOnlySpan<byte> secretKey, out Span<byte> signatureOutput)
+        {
+            signatureOutput = new byte[SIGNATURE_LENGTH];
+            return Sign(messageHash, secretKey, signatureOutput);
+        }
+        public bool Sign(ReadOnlySpan<byte> messageHash, ReadOnlySpan<byte> secretKey, Span<byte> signatureOutput)
         {
             if (signatureOutput.Length != SIGNATURE_LENGTH)
             {
@@ -441,7 +495,12 @@ namespace Secp256k1Net
         /// <param name="publicKey">A secp256k1_pubkey containing an initialized public key.</param>
         /// <param name="privateKey">A 32-byte scalar with which to multiply the point.</param>
         /// <returns>True if exponentiation was successful, false if scalar was invalid (zero or overflow).</returns>
-        public bool Ecdh(Span<byte> resultOutput, Span<byte> publicKey, Span<byte> privateKey)
+        public bool Ecdh(ReadOnlySpan<byte> publicKey, ReadOnlySpan<byte> privateKey, out Span<byte> resultOutput)
+        {
+            resultOutput = new byte[SECRET_LENGTH];
+            return Ecdh(publicKey, privateKey, resultOutput);
+        }
+        public bool Ecdh(ReadOnlySpan<byte> publicKey, ReadOnlySpan<byte> privateKey, Span<byte> resultOutput)
         {
             if (resultOutput.Length != SECRET_LENGTH)
             {
@@ -476,7 +535,12 @@ namespace Secp256k1Net
         /// <param name="hashFunction">Pointer to a hash function. If null, sha256 is used.</param>
         /// <param name="data">Arbitrary data that is passed through.</param>
         /// <returns>True if exponentiation was successful, false if scalar was invalid (zero or overflow).</returns>
-        public bool Ecdh(Span<byte> resultOutput, Span<byte> publicKey, Span<byte> privateKey, EcdhHashFunction hashFunction, IntPtr data)
+        public bool Ecdh(ReadOnlySpan<byte> publicKey, ReadOnlySpan<byte> privateKey, EcdhHashFunction hashFunction, IntPtr data, out Span<byte> resultOutput)
+        {
+            resultOutput = new byte[SECRET_LENGTH];
+            return Ecdh(publicKey, privateKey, hashFunction, data, resultOutput);
+        }
+        public bool Ecdh(ReadOnlySpan<byte> publicKey, ReadOnlySpan<byte> privateKey, EcdhHashFunction hashFunction, IntPtr data, Span<byte> resultOutput)
         {
             if (resultOutput.Length != SECRET_LENGTH)
             {
@@ -518,53 +582,53 @@ namespace Secp256k1Net
             }
         }
 
-        public bool PrivateKeyAdd(Span<byte> privateKey, Span<byte> tweak)
+        public bool PrivateKeyAdd(ReadOnlySpan<byte> tweak, Span<byte> privateKeyToMutate)
         {
-            if (privateKey.Length != PRIVKEY_LENGTH)
-                throw new ArgumentException($"length of {nameof(privateKey)} must be {PRIVKEY_LENGTH}");
+            if (privateKeyToMutate.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(privateKeyToMutate)} must be {PRIVKEY_LENGTH}");
             if (tweak.Length != PRIVKEY_LENGTH)
                 throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
 
-            fixed (byte* privKeyP = privateKey)
+            fixed (byte* privKeyP = privateKeyToMutate)
             fixed (byte* tweakP = tweak)
             {
                 return secp256k1_ec_privkey_tweak_add.Value(_ctx, privKeyP, tweakP) == 1;
             }
         }
 
-        public bool PublicKeyAdd(Span<byte> pubKey, Span<byte> tweak)
+        public bool PublicKeyAdd(ReadOnlySpan<byte> tweak, Span<byte> pubKeyToMutate)
         {
-            if (pubKey.Length != PUBKEY_LENGTH)
-                throw new ArgumentException($"length of {nameof(pubKey)} must be {PUBKEY_LENGTH}");
+            if (pubKeyToMutate.Length != PUBKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(pubKeyToMutate)} must be {PUBKEY_LENGTH}");
             if (tweak.Length != PRIVKEY_LENGTH)
                 throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
-            fixed (byte* pubkeyP = pubKey)
+            fixed (byte* pubkeyP = pubKeyToMutate)
             fixed (byte* tweakP = tweak)
             {
                 return secp256k1_ec_pubkey_tweak_add.Value(_ctx, pubkeyP, tweakP) == 1;
             }
         }
 
-        public bool PrivateKeyMulti(Span<byte> privKey, Span<byte> tweak)
+        public bool PrivateKeyMultiply(ReadOnlySpan<byte> tweak, Span<byte> privKeyToMutate)
         {
-            if (privKey.Length != PRIVKEY_LENGTH)
-                throw new ArgumentException($"length of {nameof(privKey)} must be {PRIVKEY_LENGTH}");
+            if (privKeyToMutate.Length != PRIVKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(privKeyToMutate)} must be {PRIVKEY_LENGTH}");
             if (tweak.Length != PRIVKEY_LENGTH)
                 throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
-            fixed (byte* privKeyP = privKey)
+            fixed (byte* privKeyP = privKeyToMutate)
             fixed (byte* tweakP = tweak)
             {
                 return secp256k1_ec_privkey_tweak_mul.Value(_ctx, privKeyP, tweakP) == 1;
             }
         }
 
-        public bool PublicKeyMulti(Span<byte> pubKey, Span<byte> tweak)
+        public bool PublicKeyMultiply(ReadOnlySpan<byte> tweak, Span<byte> pubKeyToMutate)
         {
-            if (pubKey.Length != PUBKEY_LENGTH)
-                throw new ArgumentException($"length of {nameof(pubKey)} must be {PUBKEY_LENGTH}");
+            if (pubKeyToMutate.Length != PUBKEY_LENGTH)
+                throw new ArgumentException($"length of {nameof(pubKeyToMutate)} must be {PUBKEY_LENGTH}");
             if (tweak.Length != PRIVKEY_LENGTH)
                 throw new ArgumentException($"Length of {nameof(tweak)} must be {PRIVKEY_LENGTH}");
-            fixed (byte* pubkeyP = pubKey)
+            fixed (byte* pubkeyP = pubKeyToMutate)
             fixed (byte* tweakP = tweak)
             {
                 return secp256k1_ec_pubkey_tweak_add.Value(_ctx, pubkeyP, tweakP) == 1;
