@@ -349,8 +349,8 @@ namespace Secp256k1Net
 
             uint inputlen = (uint)signatureInput.Length;
 
-            fixed (byte* sig = &MemoryMarshal.GetReference(signatureOutput),
-                input = &MemoryMarshal.GetReference(signatureInput))
+            fixed (byte* sig = &MemoryMarshal.GetReference(signatureOutput))
+            fixed (byte* input = &MemoryMarshal.GetReference(signatureInput))
             {
                 return secp256k1_ecdsa_signature_parse_der.Value(_ctx, sig, input, inputlen) == 1;
             }
@@ -385,9 +385,9 @@ namespace Secp256k1Net
                 throw new ArgumentException($"{nameof(publicKey)} must be {PUBKEY_LENGTH} bytes");
             }
 
-            fixed (byte* sigPtr = &MemoryMarshal.GetReference(signature),
-                msgPtr = &MemoryMarshal.GetReference(messageHash),
-                pubPtr = &MemoryMarshal.GetReference(publicKey))
+            fixed (byte* sigPtr = &MemoryMarshal.GetReference(signature))
+            fixed (byte* msgPtr = &MemoryMarshal.GetReference(messageHash))
+            fixed (byte* pubPtr = &MemoryMarshal.GetReference(publicKey))
             {
                 return secp256k1_ecdsa_verify.Value(_ctx, sigPtr, msgPtr, pubPtr) == 1;
             }
@@ -417,9 +417,9 @@ namespace Secp256k1Net
                 throw new ArgumentException($"{nameof(secretKey)} must be {PRIVKEY_LENGTH} bytes");
             }
 
-            fixed (byte* sigPtr = &MemoryMarshal.GetReference(signatureOutput),
-                msgPtr = &MemoryMarshal.GetReference(messageHash),
-                secPtr = &MemoryMarshal.GetReference(secretKey))
+            fixed (byte* sigPtr = &MemoryMarshal.GetReference(signatureOutput))
+            fixed (byte* msgPtr = &MemoryMarshal.GetReference(messageHash))
+            fixed (byte* secPtr = &MemoryMarshal.GetReference(secretKey))
             {
                 return secp256k1_ecdsa_sign.Value(_ctx, sigPtr, msgPtr, secPtr, IntPtr.Zero, IntPtr.Zero.ToPointer()) == 1;
             }
@@ -447,9 +447,9 @@ namespace Secp256k1Net
                 throw new ArgumentException($"{nameof(privateKey)} must be {PRIVKEY_LENGTH} bytes");
             }
 
-            fixed (byte* resPtr = &MemoryMarshal.GetReference(resultOutput),
-                pubPtr = &MemoryMarshal.GetReference(publicKey),
-                privPtr = &MemoryMarshal.GetReference(privateKey))
+            fixed (byte* resPtr = &MemoryMarshal.GetReference(resultOutput))
+            fixed (byte* pubPtr = &MemoryMarshal.GetReference(publicKey))
+            fixed (byte* privPtr = &MemoryMarshal.GetReference(privateKey))
             {
                 return secp256k1_ecdh.Value(_ctx, resPtr, pubPtr, privPtr, IntPtr.Zero, IntPtr.Zero) == 1;
             }

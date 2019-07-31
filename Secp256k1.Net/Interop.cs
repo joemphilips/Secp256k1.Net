@@ -36,9 +36,9 @@ namespace Secp256k1Net
     /// </returns>
     [SymbolName(nameof(secp256k1_ecdsa_sign_recoverable))]
     public unsafe delegate int secp256k1_ecdsa_sign_recoverable(IntPtr ctx,
-        void* sig,      // secp256k1_ecdsa_recoverable_signature *sig 
-        void* msg32,    // const unsigned char* msg32
-        void* seckey,   // const unsigned char* seckey
+        byte* sig,      // secp256k1_ecdsa_recoverable_signature *sig 
+        byte* msg32,    // const unsigned char* msg32
+        byte* seckey,   // const unsigned char* seckey
         IntPtr noncefp, // secp256k1_nonce_function noncefp
         IntPtr ndata    // const void* ndata
     );
@@ -55,10 +55,9 @@ namespace Secp256k1Net
     /// </returns>
     [SymbolName(nameof(secp256k1_ec_pubkey_create))]
     public unsafe delegate int secp256k1_ec_pubkey_create(IntPtr ctx,
-        void* pubKeyOut,    // secp256k1_pubkey *pubkey,
-        void* privKeyIn     // const unsigned char *seckey
+        byte* pubKeyOut,    // secp256k1_pubkey *pubkey,
+        byte* privKeyIn     // const unsigned char *seckey
     );
-
     /// <summary>
     /// Parse a variable-length public key into the pubkey object.
     /// This function supports parsing compressed (33 bytes, header byte 0x02 or
@@ -72,8 +71,8 @@ namespace Secp256k1Net
     /// <returns>1 if the public key was fully valid, 0 if the public key could not be parsed or is invalid.</returns>
     [SymbolName(nameof(secp256k1_ec_pubkey_parse))]
     public unsafe delegate int secp256k1_ec_pubkey_parse(IntPtr ctx,
-        void* pubkey,   // secp256k1_pubkey* pubkey,  
-        void* input,    // const unsigned char* input,
+        byte* pubkey,   // secp256k1_pubkey* pubkey,  
+        byte* input,    // const unsigned char* input,
         uint inputlen   // size_t inputlen
     );
 
@@ -88,9 +87,9 @@ namespace Secp256k1Net
     /// <returns>1 always</returns>
     [SymbolName(nameof(secp256k1_ec_pubkey_serialize))]
     public unsafe delegate int secp256k1_ec_pubkey_serialize(IntPtr ctx,
-        void* output,       // unsigned char* output
+        byte* output,       // unsigned char* output
         ref uint outputlen, // size_t *outputlen
-        void* pubkey,       // const secp256k1_pubkey* pubkey
+        byte* pubkey,       // const secp256k1_pubkey* pubkey
         uint flags          // unsigned int flags
     );
 
@@ -102,7 +101,7 @@ namespace Secp256k1Net
     /// <returns>1 if secret key is valid, 0 if secret key is invalid.</returns>
     [SymbolName(nameof(secp256k1_ec_seckey_verify))]
     public unsafe delegate int secp256k1_ec_seckey_verify(IntPtr ctx,
-        void* seckey // const unsigned char* seckey
+        byte* seckey // const unsigned char* seckey
     );
 
     /// <summary>
@@ -114,8 +113,8 @@ namespace Secp256k1Net
     /// <returns>1: correct signature, 0: incorrect or unparseable signature</returns>
     [SymbolName(nameof(secp256k1_ecdsa_signature_normalize))]
     public unsafe delegate int secp256k1_ecdsa_signature_normalize(IntPtr ctx,
-        void* sigout,   // secp256k1_ecdsa_signature* sigout
-        void* sigin     // const secp256k1_ecdsa_signature* sigin
+        byte* sigout,   // secp256k1_ecdsa_signature* sigout
+        byte* sigin     // const secp256k1_ecdsa_signature* sigin
     );
 
     /// <summary>
@@ -133,8 +132,8 @@ namespace Secp256k1Net
     /// <returns>1: correct signature, 0: incorrect or unparseable signature</returns>
     [SymbolName(nameof(secp256k1_ecdsa_signature_parse_der))]
     public unsafe delegate int secp256k1_ecdsa_signature_parse_der(IntPtr ctx,
-        void* sig,    // secp256k1_ecdsa_signature* sig
-        void* input,  // const unsigned char *input
+        byte* sig,    // secp256k1_ecdsa_signature* sig
+        byte* input,  // const unsigned char *input
         uint inputlen // size_t inputlen
     ); 
 
@@ -148,9 +147,9 @@ namespace Secp256k1Net
     /// <returns>1 always</returns>
     [SymbolName(nameof(secp256k1_ecdsa_recoverable_signature_serialize_compact))]
     public unsafe delegate int secp256k1_ecdsa_recoverable_signature_serialize_compact(IntPtr ctx,
-        void* output64, // unsigned char* output64
+        byte* output64, // unsigned char* output64
         ref int recid,  // int* recid
-        void* sig       // const secp256k1_ecdsa_recoverable_signature* sig
+        byte* sig       // const secp256k1_ecdsa_recoverable_signature* sig
     );
 
     /// <summary>
@@ -166,9 +165,9 @@ namespace Secp256k1Net
     /// </returns>
     [SymbolName(nameof(secp256k1_ecdsa_recover))]
     public unsafe delegate int secp256k1_ecdsa_recover(IntPtr ctx,
-        void* pubkey,   // secp256k1_pubkey* pubkey
-        void* sig,      // const secp256k1_ecdsa_recoverable_signature* sig
-        void* msg32     // const unsigned char* msg32
+        byte* pubkey,   // secp256k1_pubkey* pubkey
+        byte* sig,      // const secp256k1_ecdsa_recoverable_signature* sig
+        byte* msg32     // const unsigned char* msg32
     );
 
     /// <summary>
@@ -181,8 +180,8 @@ namespace Secp256k1Net
     /// <returns>1 when the signature could be parsed, 0 otherwise</returns>
     [SymbolName(nameof(secp256k1_ecdsa_recoverable_signature_parse_compact))]
     public unsafe delegate int secp256k1_ecdsa_recoverable_signature_parse_compact(IntPtr ctx,
-        void* sig,      // secp256k1_ecdsa_recoverable_signature* sig
-        void* input64,  // const unsigned char* input64
+        byte* sig,      // secp256k1_ecdsa_recoverable_signature* sig
+        byte* input64,  // const unsigned char* input64
         int recid       // int recid
     );
 
@@ -202,9 +201,9 @@ namespace Secp256k1Net
     /// <returns>1: correct signature, 0: incorrect or unparseable signature</returns>
     [SymbolName(nameof(secp256k1_ecdsa_verify))]
     public unsafe delegate int secp256k1_ecdsa_verify(IntPtr ctx,
-        void* sig,      // const secp256k1_ecdsa_signature *sig,
-        void* msg32,    // const unsigned char *msg32,
-        void* pubkey    // const secp256k1_pubkey *pubkey
+        byte* sig,      // const secp256k1_ecdsa_signature *sig,
+        byte* msg32,    // const unsigned char *msg32,
+        byte* pubkey    // const secp256k1_pubkey *pubkey
     );
 
     /// <summary>
@@ -220,9 +219,9 @@ namespace Secp256k1Net
     /// <returns>1: signature created, 0: the nonce generation function failed, or the private key was invalid.</returns>
     [SymbolName(nameof(secp256k1_ecdsa_sign))]
     public unsafe delegate int secp256k1_ecdsa_sign(IntPtr ctx,
-        void* sig,      // secp256k1_ecdsa_signature *sig
-        void* msg32,    // const unsigned char *msg32
-        void* seckey,   // const unsigned char *seckey
+        byte* sig,      // secp256k1_ecdsa_signature *sig
+        byte* msg32,    // const unsigned char *msg32
+        byte* seckey,   // const unsigned char *seckey
         IntPtr noncefp, // secp256k1_nonce_function noncefp
         void* ndata     // const void *ndata
     );
@@ -239,11 +238,96 @@ namespace Secp256k1Net
     /// <returns>1: exponentiation was successful, 0: scalar was invalid(zero or overflow)</returns>
     [SymbolName(nameof(secp256k1_ecdh))]
     public unsafe delegate int secp256k1_ecdh(IntPtr ctx,
-        void* output,   // unsigned char *output
-        void* pubkey,   // const secp256k1_pubkey *pubkey
-        void* privkey,  // const unsigned char *privkey
+        byte* output,   // unsigned char *output
+        byte* pubkey,   // const secp256k1_pubkey *pubkey
+        byte* privkey,  // const unsigned char *privkey
         IntPtr hashfp,  // secp256k1_ecdh_hash_function hashfp,
         IntPtr data      // void *data
+    );
+
+
+    /// <summary>
+    /// Tweak a private key by adding tweak to it.
+    /// </summary>
+    /// <param name="ctx"> pointer to a context object </param>
+    /// <param name="seckey"> pointer to a 32-byte private key </param>
+    /// <param name="tweak"> pointer to a 32-byte tweak </param>
+    /// <returns>
+    /// 0: if the tweak was out of range (chance of around 1 in 2^128 for for uniformly random 32-byte
+    ///     arrays, or if the resulting private key would be invalid (only when the tweak is the complement
+    ///     of the private key).)
+    /// 1: otherwise
+    /// </returns>
+    [SymbolName(nameof(secp256k1_ec_privkey_tweak_add))]
+    public unsafe delegate int secp256k1_ec_privkey_tweak_add(IntPtr ctx,
+        byte* seckey,
+        byte* tweak
+    );
+
+    /// <summary>
+    /// Tweak a public key by adding tweak times the generator to it.
+    /// </summary>
+    /// <param name="ctx"> pointer to a context object initialized for validation </param>
+    /// <param name="pubkey"> pointer to a public key object </param>
+    /// <param name="tweak"> pointer to a 32-byte tweak </param>
+    /// <returns>
+    ///  
+    /// </returns>
+    [SymbolName(nameof(secp256k1_ec_pubkey_tweak_add))]
+    public unsafe delegate int secp256k1_ec_pubkey_tweak_add(IntPtr ctx,
+        byte* pubkey, // secp256k1_pubkey *pubkey
+        byte* tweak // const unsigned char *tweak
+    );
+
+    /// <summary>
+    /// Tweak a private key by multiplying it by tweak.
+    /// </summary>
+    /// <param name="ctx"> Pointer to a context object (cannot be NULL). </param>
+    /// <param name="seckey"> Input/Output pointer to a 32-byte private key </param>
+    /// <param name="tweak"> Pointer to a 32-byte tweak </param>
+    /// <returns>
+    /// 0: if the tweak was out of range (change of around 1 in 2^128 for
+    ///     uniformly random 32-byte arrays, or equal to zero).
+    /// 1: otherwise
+    /// </returns>
+    [SymbolName(nameof(secp256k1_ec_privkey_tweak_mul))]
+    public unsafe delegate int secp256k1_ec_privkey_tweak_mul(IntPtr ctx,
+        byte* seckey,
+        byte* tweak
+    );
+
+    /// <summary>
+    /// Tweak a public key by multiplying it by a tweak value.
+    /// </summary>
+    /// <param name="ctx"> Pointer to a context object initialized for validation (cannot be NULL). </param>
+    /// <param name="pubkey"> Pointer to a public key object </param>
+    /// <param name="tweak"></param>
+    /// <returns>
+    /// 0: if the tweak was out of range (change of around 1 in 2^128 for uniformly random 32-byte arrays,
+    ///     or equal to zero. 1 otherwise.)
+    /// </returns>
+    [SymbolName(nameof(secp256k1_ec_pubkey_tweak_mul))]
+    public unsafe delegate int secp256k1_ec_pubkey_tweak_mul(IntPtr ctx,
+        byte* pubkey,
+        byte* tweak
+    );
+
+    /// <summary>
+    /// Add a number of public keys together
+    /// </summary>
+    /// <param name="ctx"> pointer to a context object </param>
+    /// <param name="outpk"> pointer to a public key object for placing the resulting public key (cannot be NULL) </param>
+    /// <param name="ins"> pointer to a array of pointers to public keys (cannot be NULL) </param>
+    /// <param name="n"> the number of public keys to add together (must be at least 1) </param>
+    /// <returns>
+    /// 1: the sum of the public key is valid.
+    /// 2: the sum of the public keys is not valid.
+    /// </returns>
+    [SymbolName(nameof(secp256k1_ec_pubkey_combine))]
+    public unsafe delegate int secp256k1_ec_pubkey_combine(IntPtr ctx,
+        byte* outpk, // secp256k1_pubkey*
+        byte* ins,
+        UIntPtr n
     );
 
     // Flags copied from
