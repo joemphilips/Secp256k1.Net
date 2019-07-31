@@ -33,22 +33,25 @@ namespace Secp256k1Net
         public const int SECRET_LENGTH = 32;
 
 
-        readonly Lazy<secp256k1_context_create> secp256k1_context_create;
-        readonly Lazy<secp256k1_context_destroy> secp256k1_context_destroy;
-        readonly Lazy<secp256k1_ec_pubkey_create> secp256k1_ec_pubkey_create;
-        readonly Lazy<secp256k1_ec_seckey_verify> secp256k1_ec_seckey_verify;
-        readonly Lazy<secp256k1_ec_pubkey_serialize> secp256k1_ec_pubkey_serialize;
-        readonly Lazy<secp256k1_ec_pubkey_parse> secp256k1_ec_pubkey_parse;
-        readonly Lazy<secp256k1_ecdsa_recoverable_signature_parse_compact> secp256k1_ecdsa_recoverable_signature_parse_compact;
-        readonly Lazy<secp256k1_ecdsa_recoverable_signature_serialize_compact> secp256k1_ecdsa_recoverable_signature_serialize_compact;
-        readonly Lazy<secp256k1_ecdsa_sign_recoverable> secp256k1_ecdsa_sign_recoverable;
-        readonly Lazy<secp256k1_ecdsa_sign> secp256k1_ecdsa_sign;
-        readonly Lazy<secp256k1_ecdsa_recover> secp256k1_ecdsa_recover;
-        readonly Lazy<secp256k1_ecdsa_signature_normalize> secp256k1_ecdsa_signature_normalize;
-        readonly Lazy<secp256k1_ecdsa_signature_parse_der> secp256k1_ecdsa_signature_parse_der;
-        readonly Lazy<secp256k1_ecdsa_verify> secp256k1_ecdsa_verify;
-        readonly Lazy<secp256k1_ecdh> secp256k1_ecdh;
-
+        private readonly Lazy<secp256k1_context_create> secp256k1_context_create;
+        private readonly Lazy<secp256k1_context_destroy> secp256k1_context_destroy;
+        private readonly Lazy<secp256k1_ec_pubkey_create> secp256k1_ec_pubkey_create;
+        private readonly Lazy<secp256k1_ec_seckey_verify> secp256k1_ec_seckey_verify;
+        private readonly Lazy<secp256k1_ec_pubkey_serialize> secp256k1_ec_pubkey_serialize;
+        private readonly Lazy<secp256k1_ec_pubkey_parse> secp256k1_ec_pubkey_parse;
+        private readonly Lazy<secp256k1_ecdsa_recoverable_signature_parse_compact> secp256k1_ecdsa_recoverable_signature_parse_compact;
+        private readonly Lazy<secp256k1_ecdsa_recoverable_signature_serialize_compact> secp256k1_ecdsa_recoverable_signature_serialize_compact;
+        private readonly Lazy<secp256k1_ecdsa_sign_recoverable> secp256k1_ecdsa_sign_recoverable;
+        private readonly Lazy<secp256k1_ecdsa_sign> secp256k1_ecdsa_sign;
+        private readonly Lazy<secp256k1_ecdsa_recover> secp256k1_ecdsa_recover;
+        private readonly Lazy<secp256k1_ecdsa_signature_normalize> secp256k1_ecdsa_signature_normalize;
+        private readonly Lazy<secp256k1_ecdsa_signature_parse_der> secp256k1_ecdsa_signature_parse_der;
+        private readonly Lazy<secp256k1_ecdsa_verify> secp256k1_ecdsa_verify;
+        private readonly Lazy<secp256k1_ecdh> secp256k1_ecdh;
+        private readonly Lazy<secp256k1_ec_pubkey_tweak_add> secp256k1_ec_pubkey_tweak_add;
+        private readonly Lazy<secp256k1_ec_privkey_tweak_add> secp256k1_ec_privkey_tweak_add;
+        private readonly Lazy<secp256k1_ec_pubkey_tweak_mul> secp256k1_ec_pubkey_tweak_mul;
+        private readonly Lazy<secp256k1_ec_privkey_tweak_mul> secp256k1_ec_privkey_tweak_mul;
         const string LIB = "secp256k1";
 
         public static string LibPath => _libPath.Value;
@@ -74,6 +77,11 @@ namespace Secp256k1Net
             secp256k1_ecdsa_verify = LazyDelegate<secp256k1_ecdsa_verify>();
             secp256k1_ecdsa_sign = LazyDelegate<secp256k1_ecdsa_sign>();
             secp256k1_ecdh = LazyDelegate<secp256k1_ecdh>();
+
+            secp256k1_ec_pubkey_tweak_add = LazyDelegate<secp256k1_ec_pubkey_tweak_add>();
+            secp256k1_ec_privkey_tweak_add = LazyDelegate<secp256k1_ec_privkey_tweak_add>();
+            secp256k1_ec_pubkey_tweak_mul = LazyDelegate<secp256k1_ec_pubkey_tweak_mul>();
+            secp256k1_ec_privkey_tweak_mul = LazyDelegate<secp256k1_ec_privkey_tweak_mul>();
 
             _ctx = secp256k1_context_create.Value(((uint)(Flags.SECP256K1_CONTEXT_SIGN | Flags.SECP256K1_CONTEXT_VERIFY)));
         }
